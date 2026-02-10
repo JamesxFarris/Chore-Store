@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 
 const colors = {
-  blue: "bg-blue-100 text-blue-800",
-  green: "bg-green-100 text-green-800",
-  yellow: "bg-yellow-100 text-yellow-800",
-  red: "bg-red-100 text-red-800",
-  gray: "bg-gray-100 text-gray-800",
-  purple: "bg-purple-100 text-purple-800",
+  blue: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10",
+  green: "bg-accent-50 text-accent-700 ring-1 ring-inset ring-accent-600/10",
+  yellow: "bg-points-50 text-points-700 ring-1 ring-inset ring-points-600/10",
+  red: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/10",
+  gray: "bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-600/10",
+  purple: "bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/10",
+  indigo: "bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-600/10",
 };
 
 interface BadgeProps {

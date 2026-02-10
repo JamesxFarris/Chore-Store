@@ -10,27 +10,36 @@ import {
 import type { RegisterInput, LoginInput, ChildLoginInput } from "@chore-store/shared";
 
 export async function register(input: RegisterInput) {
-  const { data, error } = await supabaseAuth.auth.signUp({
+  // Use admin API to create a confirmed user (skips email confirmation)
+  const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
     email: input.email,
     password: input.password,
-    options: { data: { name: input.name } },
+    user_metadata: { name: input.name },
+    email_confirm: true,
   });
 
-  if (error) {
-    if (error.message.includes("already registered")) {
+  if (createError) {
+    if (createError.message.includes("already been registered")) {
       throw new ConflictError("Email already registered");
     }
-    throw new Error(error.message);
+    throw new Error(createError.message);
   }
 
-  const user = data.user!;
-  const token = data.session!.access_token;
+  // Sign in to get a session token
+  const { data: signInData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+    email: input.email,
+    password: input.password,
+  });
+
+  if (signInError) {
+    throw new Error(signInError.message);
+  }
 
   return {
-    token,
+    token: signInData.session.access_token,
     user: {
-      id: user.id,
-      email: user.email!,
+      id: createData.user.id,
+      email: createData.user.email!,
       name: input.name,
     },
   };

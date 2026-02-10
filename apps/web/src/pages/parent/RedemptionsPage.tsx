@@ -4,7 +4,9 @@ import { Button } from "../../components/ui/Button.js";
 import { Card } from "../../components/ui/Card.js";
 import { Badge } from "../../components/ui/Badge.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
-import { Spinner } from "../../components/ui/Spinner.js";
+import { PageHeader } from "../../components/ui/PageHeader.js";
+import { Avatar } from "../../components/ui/Avatar.js";
+import { SkeletonList } from "../../components/ui/Skeleton.js";
 import toast from "react-hot-toast";
 
 const statusColors = {
@@ -13,15 +15,19 @@ const statusColors = {
   DELIVERED: "green",
 } as const;
 
+const tabs = ["All", "Requested", "Approved", "Delivered"] as const;
+const tabFilter: Record<string, string | null> = { All: null, Requested: "REQUESTED", Approved: "APPROVED", Delivered: "DELIVERED" };
+
 export function RedemptionsPage() {
   const [redemptions, setRedemptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>("All");
 
   const load = async () => {
     try {
       setRedemptions(await redemptionApi.list());
-    } catch {
-      // ignore
+    } catch (err: any) {
+      toast.error(err.message || "Failed to load redemptions");
     } finally {
       setLoading(false);
     }
@@ -35,45 +41,78 @@ export function RedemptionsPage() {
       toast.success(`Redemption ${status.toLowerCase()}`);
       load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to update redemption");
     }
   };
 
-  if (loading) return <Spinner />;
+  const filtered = tabFilter[activeTab]
+    ? redemptions.filter((r) => r.status === tabFilter[activeTab])
+    : redemptions;
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Redemptions" />
+        <SkeletonList count={3} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Redemptions</h1>
+      <PageHeader title="Redemptions" subtitle={`${redemptions.length} total redemption${redemptions.length !== 1 ? "s" : ""}`} />
 
-      {redemptions.length === 0 ? (
-        <EmptyState title="No redemptions yet" description="Children will request rewards here." />
+      <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${activeTab === tab ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            {tab}
+            {tab !== "All" && (
+              <span className="ml-1.5 text-xs text-gray-400">
+                {redemptions.filter((r) => r.status === tabFilter[tab]).length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon={<span className="text-3xl">🛍️</span>}
+          title={activeTab === "All" ? "No redemptions yet" : `No ${activeTab.toLowerCase()} redemptions`}
+          description="Children will request rewards here."
+        />
       ) : (
         <div className="space-y-3">
-          {redemptions.map((r: any) => (
+          {filtered.map((r: any) => (
             <Card key={r.id} className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold">{r.reward?.name}</div>
-                <div className="text-sm text-gray-500">
-                  by {r.child?.name} &middot; {r.reward?.pointCost} points
-                </div>
-                <div className="mt-1 text-xs text-gray-400">
-                  {new Date(r.createdAt).toLocaleDateString()}
+              <div className="flex items-center gap-3 min-w-0">
+                {r.child && <Avatar name={r.child.name} avatar={r.child.avatar} size="sm" />}
+                <div className="min-w-0">
+                  <div className="font-semibold text-gray-900">{r.reward?.name}</div>
+                  <div className="text-sm text-gray-500">
+                    {r.child?.name} &middot; <span className="font-medium text-points-600">{r.reward?.pointCost} pts</span>
+                  </div>
+                  <div className="mt-0.5 text-xs text-gray-400">
+                    {new Date(r.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0 ml-3">
                 <Badge color={statusColors[r.status as keyof typeof statusColors] || "gray"}>
                   {r.status}
                 </Badge>
                 {r.status === "REQUESTED" && (
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="success" onClick={() => handleUpdate(r.id, "APPROVED")}>
-                      Approve
-                    </Button>
-                  </div>
+                  <Button size="sm" variant="success" onClick={() => handleUpdate(r.id, "APPROVED")}>
+                    Approve
+                  </Button>
                 )}
                 {r.status === "APPROVED" && (
                   <Button size="sm" onClick={() => handleUpdate(r.id, "DELIVERED")}>
-                    Mark Delivered
+                    Delivered
                   </Button>
                 )}
               </div>

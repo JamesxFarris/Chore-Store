@@ -38,7 +38,7 @@ export function RegisterPage() {
     try {
       const res = await authApi.register(result.data);
       await loginParent(res.token);
-      navigate("/parent/household");
+      navigate("/setup");
     } catch (err: any) {
       toast.error(err.message || "Registration failed");
     } finally {

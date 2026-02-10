@@ -35,6 +35,16 @@ export function toCamelArray<T = Record<string, unknown>>(arr: unknown[]): T[] {
   return arr.map((item) => toCamel<T>(item));
 }
 
+/**
+ * Unwrap a PostgREST joined relation that always returns an array.
+ * For 1:1 relations, returns the first element or null.
+ */
+export function unwrapSingle<T>(value: unknown): T | null {
+  if (Array.isArray(value)) return (value[0] as T) ?? null;
+  if (value !== null && value !== undefined) return value as T;
+  return null;
+}
+
 /** Convert a camelCase object to snake_case for DB inserts/updates. */
 export function toSnake(obj: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};

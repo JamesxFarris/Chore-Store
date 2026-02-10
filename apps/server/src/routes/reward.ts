@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate.js";
-import { authMiddleware } from "../middleware/auth.js";
+import { authMiddleware, requireParent } from "../middleware/auth.js";
 import { requireHousehold } from "../middleware/require-household.js";
 import { createRewardSchema, updateRewardSchema } from "@chore-store/shared";
 import * as rewardService from "../services/reward.js";
@@ -11,6 +11,7 @@ rewardRouter.use(authMiddleware, requireHousehold);
 
 rewardRouter.post(
   "/",
+  requireParent,
   validate(createRewardSchema),
   async (req, res, next) => {
     try {
@@ -47,6 +48,7 @@ rewardRouter.get("/shop", async (req, res, next) => {
 
 rewardRouter.patch(
   "/:id",
+  requireParent,
   validate(updateRewardSchema),
   async (req, res, next) => {
     try {
@@ -62,7 +64,7 @@ rewardRouter.patch(
   },
 );
 
-rewardRouter.delete("/:id", async (req, res, next) => {
+rewardRouter.delete("/:id", requireParent, async (req, res, next) => {
   try {
     await rewardService.deleteReward(req.params.id, req.householdId!);
     res.status(204).send();

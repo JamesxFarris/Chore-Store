@@ -18,35 +18,38 @@ export async function authMiddleware(
   _res: Response,
   next: NextFunction,
 ) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
-    throw new UnauthorizedError("Missing token");
-  }
-
-  const token = header.slice(7);
-
-  // 1. Try custom JWT first (child tokens)
   try {
-    const payload = verifyToken(token);
-    if (payload.type === "child") {
-      req.child = { id: payload.sub, householdId: payload.householdId! };
-      req.tokenType = "child";
-      next();
-      return;
+    const header = req.headers.authorization;
+    if (!header?.startsWith("Bearer ")) {
+      return next(new UnauthorizedError("Missing token"));
     }
-  } catch {
-    // Not a custom JWT — try Supabase token next
-  }
 
-  // 2. Try Supabase JWT (parent tokens)
-  const { data, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !data.user) {
-    throw new UnauthorizedError("Invalid token");
-  }
+    const token = header.slice(7);
 
-  req.parent = { id: data.user.id };
-  req.tokenType = "parent";
-  next();
+    // 1. Try custom JWT first (child tokens)
+    try {
+      const payload = verifyToken(token);
+      if (payload.type === "child") {
+        req.child = { id: payload.sub, householdId: payload.householdId! };
+        req.tokenType = "child";
+        return next();
+      }
+    } catch {
+      // Not a custom JWT — try Supabase token next
+    }
+
+    // 2. Try Supabase JWT (parent tokens)
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !data.user) {
+      return next(new UnauthorizedError("Invalid token"));
+    }
+
+    req.parent = { id: data.user.id };
+    req.tokenType = "parent";
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 export function requireParent(

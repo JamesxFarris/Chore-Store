@@ -83,33 +83,45 @@ export async function getHousehold(householdId: string) {
 
   if (!household) throw new NotFoundError("Household not found");
 
-  // Get members with profile info
+  // Get members with profile info in a single joined query
   const { data: members } = await supabaseAdmin
     .from("household_members")
-    .select("id, user_id, household_id, role")
+    .select("id, user_id, household_id, role, profiles(name)")
     .eq("household_id", householdId);
 
-  // Get profile info for each member
-  const membersWithUser = await Promise.all(
-    (members ?? []).map(async (m: any) => {
-      const { data: profile } = await supabaseAdmin
-        .from("profiles")
-        .select("name")
-        .eq("id", m.user_id)
-        .single();
+  const memberUserIds = (members ?? []).map((m: any) => m.user_id);
 
-      const { data: authData } = await supabaseAdmin.auth.admin.getUserById(m.user_id);
+  // Batch fetch auth users with listUsers (single call instead of N getUserById calls)
+  const emailMap: Record<string, string> = {};
+  if (memberUserIds.length > 0) {
+    const { data: authData } = await supabaseAdmin.auth.admin.listUsers({
+      perPage: 50,
+    });
+    if (authData?.users) {
+      for (const u of authData.users) {
+        if (memberUserIds.includes(u.id)) {
+          emailMap[u.id] = u.email ?? "";
+        }
+      }
+    }
+  }
 
-      return {
-        ...m,
-        user: {
-          id: m.user_id,
-          name: profile?.name ?? "",
-          email: authData?.user?.email ?? "",
-        },
-      };
-    }),
-  );
+  const membersWithUser = (members ?? []).map((m: any) => {
+    const profileName = Array.isArray(m.profiles)
+      ? m.profiles[0]?.name ?? ""
+      : m.profiles?.name ?? "";
+    return {
+      id: m.id,
+      user_id: m.user_id,
+      household_id: m.household_id,
+      role: m.role,
+      user: {
+        id: m.user_id,
+        name: profileName,
+        email: emailMap[m.user_id] ?? "",
+      },
+    };
+  });
 
   // Get children
   const { data: children } = await supabaseAdmin

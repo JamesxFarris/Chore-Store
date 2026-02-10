@@ -14,6 +14,13 @@ async function request<T>(
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("tokenType");
+      localStorage.removeItem("childUser");
+      window.location.href = "/login";
+      throw new ApiError(401, "Session expired");
+    }
     const body = await res.json().catch(() => ({ error: res.statusText }));
     throw new ApiError(res.status, body.error || "Request failed", body.details);
   }

@@ -5,6 +5,9 @@ import { householdApi } from "../../api/household.js";
 import { Button } from "../../components/ui/Button.js";
 import { Input } from "../../components/ui/Input.js";
 import { Card } from "../../components/ui/Card.js";
+import { PageHeader } from "../../components/ui/PageHeader.js";
+import { Avatar } from "../../components/ui/Avatar.js";
+import { Badge } from "../../components/ui/Badge.js";
 import { useHousehold } from "../../context/HouseholdContext.js";
 import toast from "react-hot-toast";
 
@@ -29,7 +32,7 @@ export function HouseholdPage() {
       toast.success("Household created!");
       navigate("/parent/dashboard");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to create household");
     } finally {
       setLoading(false);
     }
@@ -45,7 +48,7 @@ export function HouseholdPage() {
       toast.success("Joined household!");
       navigate("/parent/dashboard");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to join household");
     } finally {
       setLoading(false);
     }
@@ -54,51 +57,61 @@ export function HouseholdPage() {
   if (hasHousehold && household) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Household</h1>
+        <PageHeader title="Household" subtitle={household.name} />
+
         <Card>
-          <h2 className="text-lg font-semibold">{household.name}</h2>
-          <div className="mt-4 space-y-3">
+          <div className="space-y-6">
             <div>
-              <span className="text-sm text-gray-500">Invite Code:</span>
-              <div className="mt-1 flex items-center gap-2">
-                <code className="rounded bg-gray-100 px-3 py-1 text-lg font-mono font-bold tracking-wider">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Invite Code</h3>
+              <div className="mt-2 flex items-center gap-3">
+                <code className="rounded-xl bg-gray-100 px-4 py-2.5 text-lg font-mono font-bold tracking-[0.2em] text-gray-900">
                   {household.inviteCode}
                 </code>
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="sm"
                   onClick={() => {
                     navigator.clipboard.writeText(household.inviteCode);
-                    toast.success("Copied!");
+                    toast.success("Copied to clipboard!");
                   }}
                 >
                   Copy
                 </Button>
               </div>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-gray-400">
                 Share this code with other parents to join, or use it for child login.
               </p>
             </div>
+
             <div>
-              <span className="text-sm text-gray-500">Members:</span>
-              <ul className="mt-1 space-y-1">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Members</h3>
+              <div className="mt-2 space-y-2">
                 {household.members.map((m) => (
-                  <li key={m.id} className="text-sm">
-                    {m.user.name} ({m.user.email}) - {m.role}
-                  </li>
+                  <div key={m.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
+                    <Avatar name={m.user.name || m.user.email} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900">{m.user.name}</p>
+                      <p className="text-xs text-gray-500">{m.user.email}</p>
+                    </div>
+                    <Badge color="indigo">{m.role}</Badge>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
+
             <div>
-              <span className="text-sm text-gray-500">Children:</span>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Children</h3>
               {household.children.length === 0 ? (
-                <p className="mt-1 text-sm text-gray-400">No children yet.</p>
+                <p className="mt-2 text-sm text-gray-400">No children yet.</p>
               ) : (
-                <ul className="mt-1 space-y-1">
+                <div className="mt-2 space-y-2">
                   {household.children.map((c) => (
-                    <li key={c.id} className="text-sm">{c.name}</li>
+                    <div key={c.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
+                      <Avatar name={c.name} avatar={c.avatar} size="sm" />
+                      <span className="text-sm font-medium text-gray-900">{c.name}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>
@@ -109,50 +122,56 @@ export function HouseholdPage() {
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <Card className="w-full max-w-md">
-        <h1 className="mb-6 text-center text-2xl font-bold">Set Up Your Household</h1>
-
-        <div className="mb-6 flex rounded-lg border border-gray-200">
-          <button
-            className={`flex-1 rounded-l-lg py-2 text-sm font-medium ${mode === "create" ? "bg-primary-600 text-white" : "text-gray-600"}`}
-            onClick={() => setMode("create")}
-          >
-            Create New
-          </button>
-          <button
-            className={`flex-1 rounded-r-lg py-2 text-sm font-medium ${mode === "join" ? "bg-primary-600 text-white" : "text-gray-600"}`}
-            onClick={() => setMode("join")}
-          >
-            Join Existing
-          </button>
+      <div className="w-full max-w-md animate-slide-up">
+        <div className="mb-6 text-center">
+          <span className="text-4xl">🏠</span>
+          <h1 className="mt-3 text-2xl font-bold text-gray-900">Set Up Your Household</h1>
+          <p className="mt-1 text-sm text-gray-500">Create a new household or join an existing one</p>
         </div>
+        <Card variant="elevated" className="p-8">
+          <div className="mb-6 flex gap-1 rounded-xl bg-gray-100 p-1">
+            <button
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${mode === "create" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
+              onClick={() => setMode("create")}
+            >
+              Create New
+            </button>
+            <button
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${mode === "join" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
+              onClick={() => setMode("join")}
+            >
+              Join Existing
+            </button>
+          </div>
 
-        {mode === "create" ? (
-          <form onSubmit={handleCreate} className="space-y-4">
-            <Input
-              label="Household Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. The Smith Family"
-            />
-            <Button type="submit" loading={loading} className="w-full">
-              Create Household
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={handleJoin} className="space-y-4">
-            <Input
-              label="Invite Code"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              placeholder="e.g. A1B2C3D4"
-            />
-            <Button type="submit" loading={loading} className="w-full">
-              Join Household
-            </Button>
-          </form>
-        )}
-      </Card>
+          {mode === "create" ? (
+            <form onSubmit={handleCreate} className="space-y-4">
+              <Input
+                label="Household Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. The Smith Family"
+              />
+              <Button type="submit" loading={loading} className="w-full">
+                Create Household
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleJoin} className="space-y-4">
+              <Input
+                label="Invite Code"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                placeholder="e.g. A1B2C3D4"
+                className="text-center font-mono tracking-widest"
+              />
+              <Button type="submit" loading={loading} className="w-full">
+                Join Household
+              </Button>
+            </form>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }

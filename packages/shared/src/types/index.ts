@@ -55,6 +55,7 @@ export interface ChoreInstance {
   status: ChoreStatus;
   createdAt: string;
   template?: ChoreTemplate;
+  assignedChild?: Child | null;
   submission?: Submission | null;
   verification?: Verification | null;
 }
@@ -104,6 +105,7 @@ export interface Redemption {
   status: RedemptionStatus;
   createdAt: string;
   reward?: Reward;
+  child?: Child;
 }
 
 export interface AuthTokenPayload {

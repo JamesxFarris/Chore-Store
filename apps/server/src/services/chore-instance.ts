@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "../lib/supabase.js";
-import { toCamel, toCamelArray } from "../lib/case-utils.js";
+import { toCamel, toCamelArray, unwrapSingle } from "../lib/case-utils.js";
 import { NotFoundError } from "../lib/errors.js";
 
 function todayDate(): string {
@@ -64,13 +64,12 @@ export async function getInstancesForChild(
 
   if (error) throw new Error(error.message);
 
-  // Reshape to match Prisma's include format
   return toCamelArray(
     (data ?? []).map((row: any) => ({
       ...row,
-      template: row.chore_templates,
-      submission: row.submissions ?? null,
-      verification: row.verifications ?? null,
+      template: unwrapSingle(row.chore_templates),
+      submission: unwrapSingle(row.submissions),
+      verification: unwrapSingle(row.verifications),
       chore_templates: undefined,
       submissions: undefined,
       verifications: undefined,
@@ -102,10 +101,10 @@ export async function getInstancesForHousehold(
   return toCamelArray(
     (data ?? []).map((row: any) => ({
       ...row,
-      template: row.chore_templates,
-      assignedChild: row.children ?? null,
-      submission: row.submissions ?? null,
-      verification: row.verifications ?? null,
+      template: unwrapSingle(row.chore_templates),
+      assignedChild: unwrapSingle(row.children),
+      submission: unwrapSingle(row.submissions),
+      verification: unwrapSingle(row.verifications),
       chore_templates: undefined,
       children: undefined,
       submissions: undefined,
@@ -136,7 +135,7 @@ export async function createOneTimeInstance(
 
   return toCamel({
     ...data,
-    template: data.chore_templates,
+    template: unwrapSingle(data.chore_templates),
     chore_templates: undefined,
   });
 }
@@ -158,10 +157,10 @@ export async function getInstance(id: string) {
 
   return toCamel({
     ...data,
-    template: data.chore_templates,
-    assignedChild: data.children ?? null,
-    submission: data.submissions ?? null,
-    verification: data.verifications ?? null,
+    template: unwrapSingle(data.chore_templates),
+    assignedChild: unwrapSingle(data.children),
+    submission: unwrapSingle(data.submissions),
+    verification: unwrapSingle(data.verifications),
     chore_templates: undefined,
     children: undefined,
     submissions: undefined,

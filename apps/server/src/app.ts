@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import type { Request, Response, NextFunction } from "express";
 import { errorHandler } from "./middleware/error-handler.js";
 import { authRouter } from "./routes/auth.js";
 import { householdRouter } from "./routes/household.js";
@@ -18,6 +19,18 @@ export const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Request logger
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  const start = Date.now();
+  const orig = _res.end;
+  _res.end = function (...args: any[]) {
+    const ms = Date.now() - start;
+    console.log(`${req.method} ${req.path} ${_res.statusCode} ${ms}ms`);
+    return orig.apply(this, args);
+  } as any;
+  next();
+});
 
 // Public routes
 app.use("/api/auth", authRouter);

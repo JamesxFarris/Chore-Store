@@ -15,27 +15,29 @@ export async function requireHousehold(
   _res: Response,
   next: NextFunction,
 ) {
-  if (req.child) {
-    req.householdId = req.child.householdId;
-    next();
-    return;
-  }
-
-  if (req.parent) {
-    const { data: membership } = await supabaseAdmin
-      .from("household_members")
-      .select("household_id")
-      .eq("user_id", req.parent.id)
-      .limit(1)
-      .maybeSingle();
-
-    if (!membership) {
-      throw new ForbiddenError("You must belong to a household");
+  try {
+    if (req.child) {
+      req.householdId = req.child.householdId;
+      return next();
     }
-    req.householdId = membership.household_id;
-    next();
-    return;
-  }
 
-  throw new ForbiddenError("Authentication required");
+    if (req.parent) {
+      const { data: membership } = await supabaseAdmin
+        .from("household_members")
+        .select("household_id")
+        .eq("user_id", req.parent.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (!membership) {
+        return next(new ForbiddenError("You must belong to a household"));
+      }
+      req.householdId = membership.household_id;
+      return next();
+    }
+
+    next(new ForbiddenError("Authentication required"));
+  } catch (err) {
+    next(err);
+  }
 }

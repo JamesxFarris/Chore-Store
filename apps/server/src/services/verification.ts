@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "../lib/supabase.js";
-import { toCamel, toCamelArray } from "../lib/case-utils.js";
+import { toCamel, toCamelArray, unwrapSingle } from "../lib/case-utils.js";
 import {
   BadRequestError,
   NotFoundError,
@@ -25,9 +25,9 @@ export async function getPendingVerifications(householdId: string) {
   return toCamelArray(
     (data ?? []).map((row: any) => ({
       ...row,
-      template: row.chore_templates,
-      assignedChild: row.children ?? null,
-      submission: row.submissions ?? null,
+      template: unwrapSingle(row.chore_templates),
+      assignedChild: unwrapSingle(row.children),
+      submission: unwrapSingle(row.submissions),
       chore_templates: undefined,
       children: undefined,
       submissions: undefined,
@@ -53,15 +53,15 @@ export async function verify(
 
   if (!instance) throw new NotFoundError("Chore instance not found");
 
-  const template = instance.chore_templates as any;
-  if (template.household_id !== householdId) {
+  const template = unwrapSingle<any>(instance.chore_templates);
+  if (!template || template.household_id !== householdId) {
     throw new NotFoundError("Chore instance not found");
   }
   if (instance.status !== "SUBMITTED") {
     throw new BadRequestError("This chore is not awaiting verification");
   }
-  const verification = instance.verifications as any;
-  if (verification && (Array.isArray(verification) ? verification.length > 0 : true)) {
+  const verifications = Array.isArray(instance.verifications) ? instance.verifications : [];
+  if (verifications.length > 0) {
     throw new ConflictError("This chore has already been verified");
   }
 
