@@ -9,6 +9,7 @@ import { Modal } from "../../components/ui/Modal.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
 import { PageHeader } from "../../components/ui/PageHeader.js";
 import { Avatar } from "../../components/ui/Avatar.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { SkeletonList } from "../../components/ui/Skeleton.js";
 import type { Child } from "@chore-store/shared";
 import toast from "react-hot-toast";
@@ -71,11 +72,11 @@ export function ChildrenPage() {
           {children.map((child) => (
             <Card key={child.id} variant="interactive" onClick={() => setEditChild(child)}>
               <div className="flex items-center gap-4">
-                <Avatar name={child.name} avatar={child.avatar} size="lg" />
+                <Avatar name={child.name} avatar={child.avatar} size="xl" />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-gray-900">{child.name}</div>
-                  <div className="mt-0.5 text-sm font-bold text-points-600">
-                    {balances[child.id] ?? 0} points
+                  <div className="mt-0.5">
+                    <StarPoints value={balances[child.id] ?? 0} size="sm" />
                   </div>
                   <div className="mt-0.5 text-xs text-gray-400">
                     Added {new Date(child.createdAt).toLocaleDateString()}

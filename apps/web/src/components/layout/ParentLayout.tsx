@@ -16,7 +16,7 @@ export function ParentLayout() {
   const { parent, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#fafaf8]">
       {/* Sidebar */}
       <aside className="hidden w-64 border-r border-gray-200/80 bg-white lg:flex lg:flex-col">
         <div className="flex h-16 items-center border-b border-gray-100 px-6">
@@ -28,7 +28,7 @@ export function ParentLayout() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${isActive ? "bg-primary-50 text-primary-700 shadow-sm" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`
+                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${isActive ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`
               }
             >
               <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,7 +83,7 @@ export function ParentLayout() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-1 py-2.5 text-xs transition-colors ${isActive ? "text-primary-600 font-medium" : "text-gray-400"}`
+                `flex flex-1 flex-col items-center gap-1 py-2.5 text-xs transition-colors ${isActive ? "text-emerald-700 font-medium" : "text-gray-400"}`
               }
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

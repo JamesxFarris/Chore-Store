@@ -48,11 +48,13 @@ export default {
       boxShadow: {
         card: "0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03)",
         "card-hover": "0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04)",
+        "card-chunky": "0 2px 8px 0 rgba(0, 0, 0, 0.08)",
         modal: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
       },
       borderRadius: {
         "2xl": "1rem",
         "3xl": "1.25rem",
+        "4xl": "1.75rem",
       },
       keyframes: {
         "fade-in": {
@@ -75,11 +77,17 @@ export default {
           "0%, 100%": { transform: "translateY(0) rotate(0deg) scale(1)" },
           "50%": { transform: "translateY(-15px) rotate(-3deg) scale(1.05)" },
         },
+        "bounce-in": {
+          "0%": { opacity: "0", transform: "scale(0.3)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.2s ease-out",
         "slide-up": "slide-up 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
+        "bounce-in": "bounce-in 0.4s ease-out",
         float: "float 6s ease-in-out infinite",
         "float-slow": "float-slow 8s ease-in-out infinite",
       },

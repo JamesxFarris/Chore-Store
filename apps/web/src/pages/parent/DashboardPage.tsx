@@ -5,6 +5,7 @@ import { redemptionApi } from "../../api/redemptions.js";
 import { choreInstanceApi } from "../../api/chores.js";
 import { pointsApi } from "../../api/points.js";
 import { useHousehold } from "../../context/HouseholdContext.js";
+import { useAuth } from "../../context/AuthContext.js";
 import { Card } from "../../components/ui/Card.js";
 import { Badge } from "../../components/ui/Badge.js";
 import { Button } from "../../components/ui/Button.js";
@@ -12,6 +13,7 @@ import { EmptyState } from "../../components/ui/EmptyState.js";
 import { StatCard } from "../../components/ui/StatCard.js";
 import { PageHeader } from "../../components/ui/PageHeader.js";
 import { Avatar } from "../../components/ui/Avatar.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog.js";
 import { SkeletonCard, SkeletonList } from "../../components/ui/Skeleton.js";
 import type { ChoreInstance, Redemption } from "@chore-store/shared";
@@ -19,6 +21,7 @@ import toast from "react-hot-toast";
 
 export function DashboardPage() {
   const { household } = useHousehold();
+  const { parent } = useAuth();
   const [pending, setPending] = useState<ChoreInstance[]>([]);
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
   const [todayChores, setTodayChores] = useState<ChoreInstance[]>([]);
@@ -104,9 +107,13 @@ export function DashboardPage() {
 
   const completedCount = todayChores.filter((c) => c.status === "APPROVED").length;
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const parentName = parent?.name || household?.name || "";
+
   return (
     <div className="space-y-8">
-      <PageHeader title="Dashboard" subtitle={`Welcome back! Here's what's happening today.`} />
+      <PageHeader title="Dashboard" subtitle={`${greeting}, ${parentName}! Here's your family's day.`} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
@@ -140,11 +147,11 @@ export function DashboardPage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-400">Point Balances</h2>
           <div className="flex flex-wrap gap-4">
             {household.children.map((c) => (
-              <div key={c.id} className="flex items-center gap-2.5 rounded-xl bg-gray-50 px-4 py-2.5">
+              <div key={c.id} className="flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-2.5">
                 <Avatar name={c.name} avatar={c.avatar} size="sm" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">{c.name}</p>
-                  <p className="text-xs font-bold text-points-600">{childBalances[c.id] ?? "..."} pts</p>
+                  <StarPoints value={childBalances[c.id] ?? 0} size="sm" />
                 </div>
               </div>
             ))}
@@ -171,7 +178,7 @@ export function DashboardPage() {
             {pending.map((item: any) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/50 p-4 transition-all"
+                className="flex items-center justify-between rounded-xl border border-gray-100 border-l-4 border-l-amber-400 bg-gray-50/50 p-4 transition-all"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   {item.assignedChild && <Avatar name={item.assignedChild.name} avatar={item.assignedChild.avatar} size="sm" />}

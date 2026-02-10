@@ -6,7 +6,9 @@ import { Badge } from "../../components/ui/Badge.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
 import { PageHeader } from "../../components/ui/PageHeader.js";
 import { Avatar } from "../../components/ui/Avatar.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { SkeletonList } from "../../components/ui/Skeleton.js";
+import { getRewardEmoji } from "../../lib/reward-emoji.js";
 import toast from "react-hot-toast";
 
 const statusColors = {
@@ -92,9 +94,12 @@ export function RedemptionsPage() {
               <div className="flex items-center gap-3 min-w-0">
                 {r.child && <Avatar name={r.child.name} avatar={r.child.avatar} size="sm" />}
                 <div className="min-w-0">
-                  <div className="font-semibold text-gray-900">{r.reward?.name}</div>
-                  <div className="text-sm text-gray-500">
-                    {r.child?.name} &middot; <span className="font-medium text-points-600">{r.reward?.pointCost} pts</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg">{getRewardEmoji(r.reward?.name || "")}</span>
+                    <span className="font-semibold text-gray-900">{r.reward?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    {r.child?.name} &middot; <StarPoints value={r.reward?.pointCost || 0} size="sm" />
                   </div>
                   <div className="mt-0.5 text-xs text-gray-400">
                     {new Date(r.createdAt).toLocaleDateString()}

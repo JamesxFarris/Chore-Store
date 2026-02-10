@@ -3,11 +3,11 @@ import { rewardApi } from "../../api/rewards.js";
 import { redemptionApi } from "../../api/redemptions.js";
 import { pointsApi } from "../../api/points.js";
 import { Button } from "../../components/ui/Button.js";
-import { Card } from "../../components/ui/Card.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
-import { PageHeader } from "../../components/ui/PageHeader.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog.js";
 import { SkeletonList } from "../../components/ui/Skeleton.js";
+import { getRewardEmoji } from "../../lib/reward-emoji.js";
 import type { Reward } from "@chore-store/shared";
 import toast from "react-hot-toast";
 
@@ -34,7 +34,6 @@ export function ShopPage() {
     try {
       await redemptionApi.create(redeemTarget.id);
       toast.success("Reward redeemed! Ask your parent to deliver it.");
-      // Optimistic update
       setBalance((prev) => prev - redeemTarget.pointCost);
       setRedeemTarget(null);
     } catch (err: any) {
@@ -47,70 +46,54 @@ export function ShopPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Reward Shop" />
+        <h1 className="font-display text-2xl font-bold text-white">Reward Shop</h1>
         <SkeletonList count={3} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Reward Shop"
-        action={
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-points-100 px-4 py-2 text-sm font-bold text-points-700">
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95c-.285.475-.507 1-.67 1.55H6a1 1 0 000 2h.013a9.358 9.358 0 000 1H6a1 1 0 100 2h.351c.163.55.385 1.075.67 1.55C7.721 15.216 8.768 16 10 16s2.279-.784 2.979-1.95a1 1 0 10-1.715-1.029c-.472.786-.96.979-1.264.979-.304 0-.792-.193-1.264-.979a5.38 5.38 0 01-.491-.921h2.755a1 1 0 100-2H8.003a7.36 7.36 0 010-1h3.997a1 1 0 100-2H8.245c.13-.332.3-.647.491-.921z" />
-            </svg>
-            {balance} pts
-          </span>
-        }
-      />
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold text-white">Reward Shop</h1>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3.5 py-1.5 text-sm font-bold text-white shadow-md">
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+          {balance}
+        </span>
+      </div>
 
       {rewards.length === 0 ? (
         <EmptyState
+          variant="child"
           icon={<span className="text-3xl">🏪</span>}
           title="No rewards available"
           description="Check back later for new rewards!"
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-4">
           {rewards.map((r) => {
             const canAfford = balance >= r.pointCost;
-            const progress = Math.min((balance / r.pointCost) * 100, 100);
             const remaining = r.pointCost - balance;
 
             return (
-              <Card key={r.id}>
-                <div className="font-semibold text-gray-900">{r.name}</div>
-                {r.description && (
-                  <p className="mt-1 text-sm text-gray-500">{r.description}</p>
+              <div
+                key={r.id}
+                onClick={canAfford ? () => setRedeemTarget(r) : undefined}
+                className={`flex flex-col items-center rounded-3xl bg-white p-4 shadow-[0_2px_8px_0_rgba(0,0,0,0.08)] transition-transform ${canAfford ? "cursor-pointer active:scale-95" : "opacity-60"}`}
+              >
+                <span className="text-4xl">{getRewardEmoji(r.name)}</span>
+                <span className="mt-2 text-center font-display text-sm font-semibold text-gray-900 leading-tight">
+                  {r.name}
+                </span>
+                <div className="mt-2">
+                  <StarPoints value={r.pointCost} size="sm" />
+                </div>
+                {!canAfford && (
+                  <span className="mt-1 text-[11px] text-gray-400">{remaining} more needed</span>
                 )}
-                <div className="mt-3 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-bold text-points-600">{r.pointCost} pts</span>
-                    {!canAfford && (
-                      <span className="text-xs text-gray-400">{remaining} more needed</span>
-                    )}
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${canAfford ? "bg-accent-500" : "bg-points-400"}`}
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <Button
-                    size="sm"
-                    className="w-full"
-                    disabled={!canAfford}
-                    onClick={() => setRedeemTarget(r)}
-                  >
-                    {canAfford ? "Redeem" : `${remaining} more pts needed`}
-                  </Button>
-                </div>
-              </Card>
+              </div>
             );
           })}
         </div>

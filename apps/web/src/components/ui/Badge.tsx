@@ -8,17 +8,25 @@ const colors = {
   gray: "bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-600/10",
   purple: "bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/10",
   indigo: "bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-600/10",
+  star: "bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm",
+};
+
+const badgeSizes = {
+  sm: "px-2 py-0.5 text-[10px]",
+  md: "px-2.5 py-0.5 text-xs",
+  lg: "px-3 py-1 text-sm",
 };
 
 interface BadgeProps {
   color?: keyof typeof colors;
+  size?: keyof typeof badgeSizes;
   children: ReactNode;
 }
 
-export function Badge({ color = "gray", children }: BadgeProps) {
+export function Badge({ color = "gray", size = "md", children }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[color]}`}
+      className={`inline-flex items-center rounded-full font-medium ${badgeSizes[size]} ${colors[color]}`}
     >
       {children}
     </span>

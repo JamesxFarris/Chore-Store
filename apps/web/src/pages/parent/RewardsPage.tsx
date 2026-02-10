@@ -9,7 +9,9 @@ import { Badge } from "../../components/ui/Badge.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
 import { PageHeader } from "../../components/ui/PageHeader.js";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { SkeletonList } from "../../components/ui/Skeleton.js";
+import { getRewardEmoji } from "../../lib/reward-emoji.js";
 import type { Reward } from "@chore-store/shared";
 import toast from "react-hot-toast";
 
@@ -96,14 +98,15 @@ export function RewardsPage() {
               <div className="flex items-start justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
+                    <span className="text-lg">{getRewardEmoji(r.name)}</span>
                     <span className="font-semibold text-gray-900">{r.name}</span>
                     {!r.isActive && <Badge color="red">Inactive</Badge>}
                   </div>
                   {r.description && (
                     <p className="mt-1 text-sm text-gray-500">{r.description}</p>
                   )}
-                  <div className="mt-3 inline-flex items-center gap-1 rounded-lg bg-points-50 px-3 py-1.5 text-sm font-bold text-points-700">
-                    {r.pointCost} points
+                  <div className="mt-3">
+                    <StarPoints value={r.pointCost} size="md" />
                   </div>
                 </div>
               </div>

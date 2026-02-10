@@ -11,7 +11,9 @@ import { Select } from "../../components/ui/Select.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
 import { PageHeader } from "../../components/ui/PageHeader.js";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { SkeletonList } from "../../components/ui/Skeleton.js";
+import { getChoreEmoji } from "../../lib/chore-emoji.js";
 import type { ChoreTemplate, Child } from "@chore-store/shared";
 import toast from "react-hot-toast";
 
@@ -94,6 +96,7 @@ export function ChoresPage() {
               <Card key={t.id} className="flex items-center justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
+                    <span className="text-lg">{getChoreEmoji(t.title)}</span>
                     <span className="font-semibold text-gray-900">{t.title}</span>
                     <Badge color={recurrenceColors[t.recurrence as keyof typeof recurrenceColors]}>
                       {recurrenceLabels[t.recurrence as keyof typeof recurrenceLabels]}
@@ -102,8 +105,8 @@ export function ChoresPage() {
                   {t.description && (
                     <p className="mt-1 text-sm text-gray-500">{t.description}</p>
                   )}
-                  <div className="mt-1 text-sm font-bold text-points-600">
-                    {t.points} points
+                  <div className="mt-1">
+                    <StarPoints value={t.points} size="sm" />
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0 ml-3">
@@ -129,10 +132,13 @@ export function ChoresPage() {
                   <Card key={t.id} className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
+                        <span className="text-lg">{getChoreEmoji(t.title)}</span>
                         <span className="font-semibold text-gray-900">{t.title}</span>
                         <Badge color="red">Inactive</Badge>
                       </div>
-                      <div className="mt-1 text-sm font-bold text-points-600">{t.points} points</div>
+                      <div className="mt-1">
+                        <StarPoints value={t.points} size="sm" />
+                      </div>
                     </div>
                     <Button variant="secondary" size="sm" onClick={() => setDeactivateTarget(t)}>
                       Activate

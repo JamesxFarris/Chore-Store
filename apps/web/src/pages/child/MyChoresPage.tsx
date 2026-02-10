@@ -7,17 +7,11 @@ import { Badge } from "../../components/ui/Badge.js";
 import { Modal } from "../../components/ui/Modal.js";
 import { Input } from "../../components/ui/Input.js";
 import { EmptyState } from "../../components/ui/EmptyState.js";
-import { PageHeader } from "../../components/ui/PageHeader.js";
+import { StarPoints } from "../../components/ui/StarPoints.js";
 import { SkeletonList } from "../../components/ui/Skeleton.js";
+import { getChoreEmoji } from "../../lib/chore-emoji.js";
 import type { ChoreInstance } from "@chore-store/shared";
 import toast from "react-hot-toast";
-
-const statusConfig = {
-  TODO: { color: "blue" as const, label: "To Do", step: 1 },
-  SUBMITTED: { color: "yellow" as const, label: "Submitted", step: 2 },
-  APPROVED: { color: "green" as const, label: "Approved", step: 3 },
-  DENIED: { color: "red" as const, label: "Denied", step: 0 },
-};
 
 export function MyChoresPage() {
   const [chores, setChores] = useState<ChoreInstance[]>([]);
@@ -39,7 +33,7 @@ export function MyChoresPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="My Chores Today" />
+        <h1 className="font-display text-2xl font-bold text-white">My Chores Today</h1>
         <SkeletonList count={3} />
       </div>
     );
@@ -48,31 +42,37 @@ export function MyChoresPage() {
   const completed = chores.filter((c) => c.status === "APPROVED").length;
   const total = chores.length;
   const allDone = total > 0 && completed === total;
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="My Chores Today" subtitle={total > 0 ? `${completed} of ${total} done` : undefined} />
+    <div className="space-y-5">
+      <h1 className="font-display text-2xl font-bold text-white">My Chores Today</h1>
 
-      {/* Progress bar */}
+      {/* Progress bar card */}
       {total > 0 && (
-        <div className="space-y-2">
-          <div className="h-3 overflow-hidden rounded-full bg-gray-200">
+        <Card variant="child">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-display text-sm font-semibold text-gray-700">Daily Progress</span>
+            <span className="text-sm font-bold text-green-600">{pct}%</span>
+          </div>
+          <div className="h-4 overflow-hidden rounded-full bg-gray-200">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 transition-all duration-500"
-              style={{ width: `${(completed / total) * 100}%` }}
+              className="h-full rounded-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-500"
+              style={{ width: `${pct}%` }}
             />
           </div>
           {allDone && (
-            <div className="rounded-2xl bg-accent-50 p-4 text-center animate-scale-in">
-              <span className="text-2xl">🎉</span>
-              <p className="mt-1 text-sm font-semibold text-accent-700">All chores done! Great job!</p>
+            <div className="mt-3 text-center animate-bounce-in">
+              <span className="text-3xl">🎉</span>
+              <p className="mt-1 font-display text-sm font-semibold text-green-600">All chores done! Great job!</p>
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {chores.length === 0 ? (
         <EmptyState
+          variant="child"
           icon={<span className="text-3xl">🌟</span>}
           title="No chores today!"
           description="Enjoy your free time!"
@@ -80,22 +80,29 @@ export function MyChoresPage() {
       ) : (
         <div className="space-y-3">
           {chores.map((chore) => {
-            const config = statusConfig[chore.status as keyof typeof statusConfig] || statusConfig.TODO;
+            const isApproved = chore.status === "APPROVED";
+            const isSubmitted = chore.status === "SUBMITTED";
+            const isDenied = chore.status === "DENIED";
+            const title = (chore as any).template?.title || "Chore";
+
             return (
-              <Card key={chore.id} className="animate-slide-up">
-                <div className="flex items-center justify-between">
+              <Card key={chore.id} variant={isApproved ? "child-completed" : "child"} className="animate-slide-up">
+                <div className="flex items-center gap-3">
+                  {/* Emoji icon */}
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-2xl">
+                    {getChoreEmoji(title)}
+                  </div>
+
+                  {/* Content */}
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">{(chore as any).template?.title}</span>
-                      <Badge color={config.color}>{config.label}</Badge>
-                    </div>
+                    <div className="font-display font-semibold text-gray-900">{title}</div>
                     {(chore as any).template?.description && (
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-0.5 text-sm text-gray-500">
                         {(chore as any).template.description}
                       </p>
                     )}
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-lg bg-points-50 px-2.5 py-1 text-sm font-bold text-points-700">
-                      {(chore as any).template?.points} pts
+                    <div className="mt-1">
+                      <StarPoints value={(chore as any).template?.points || 0} size="sm" />
                     </div>
                     {(chore as any).verification?.message && (
                       <p className="mt-2 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-600 italic">
@@ -103,18 +110,28 @@ export function MyChoresPage() {
                       </p>
                     )}
                   </div>
-                  {chore.status === "TODO" && (
-                    <Button size="sm" onClick={() => setSubmitId(chore.id)} className="shrink-0 ml-3">
-                      Submit
-                    </Button>
-                  )}
-                  {chore.status === "APPROVED" && (
-                    <div className="ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-accent-600">
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  )}
+
+                  {/* Action */}
+                  <div className="shrink-0">
+                    {chore.status === "TODO" && (
+                      <Button variant="child-primary" size="sm" onClick={() => setSubmitId(chore.id)}>
+                        Done!
+                      </Button>
+                    )}
+                    {isSubmitted && (
+                      <Badge color="yellow" size="lg">Waiting</Badge>
+                    )}
+                    {isDenied && (
+                      <Badge color="red" size="lg">Redo</Badge>
+                    )}
+                    {isApproved && (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white animate-bounce-in">
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Card>
             );
@@ -128,7 +145,6 @@ export function MyChoresPage() {
             choreInstanceId={submitId}
             onSuccess={() => {
               setSubmitId(null);
-              // Optimistic: update status locally
               setChores((prev) =>
                 prev.map((c) =>
                   c.id === submitId ? { ...c, status: "SUBMITTED" as any } : c
