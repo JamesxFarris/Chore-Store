@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Star, Sparkle, CheckCircle, Trophy, Broom, Heart, Gift, Lightning } from "./FloatingIcons.js";
+import { Star, Sparkle, CheckCircle, Trophy, Gift, Coin, ShoppingBag, PriceTag } from "./FloatingIcons.js";
 
-const icons = [Star, Sparkle, CheckCircle, Trophy, Broom, Heart, Gift, Lightning, Star, Sparkle, Trophy, Lightning];
+// Store-themed icon set: rewards, shopping, achievements
+const icons = [Star, ShoppingBag, Sparkle, Coin, Trophy, PriceTag, Gift, CheckCircle, Star, ShoppingBag, Coin, Sparkle];
 
 const positions = [
   { top: "5%", left: "8%", size: "w-8 h-8" },
@@ -24,15 +25,17 @@ interface AnimatedBackgroundProps {
 }
 
 export function AnimatedBackground({ variant, children }: AnimatedBackgroundProps) {
+  // Parent: deep indigo — brand primary
+  // Child: warm gold into green — brand accent/reward colors
   const gradientClass =
     variant === "parent"
-      ? "from-primary-700 via-primary-500 to-purple-500"
-      : "from-points-400 via-accent-400 to-primary-400";
+      ? "from-primary-800 via-primary-600 to-primary-500"
+      : "from-points-400 via-accent-400 to-accent-600";
 
   return (
     <div className={`relative min-h-screen overflow-hidden bg-gradient-to-br ${gradientClass}`}>
       {/* Radial overlay for depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.12),transparent_60%)]" />
 
       {/* Floating icons */}
       {icons.map((Icon, i) => {
@@ -42,7 +45,7 @@ export function AnimatedBackground({ variant, children }: AnimatedBackgroundProp
         return (
           <motion.div
             key={i}
-            className={`absolute text-white/20 ${pos.size}`}
+            className={`absolute text-white/15 ${pos.size}`}
             style={{ top: pos.top, left: pos.left, right: pos.right }}
             animate={{
               y: [0, -20, 0],

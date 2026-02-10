@@ -61,7 +61,7 @@ export function ChildLoginPage() {
             >
               Hey there!
             </motion.h1>
-            <p className="mt-1 text-base text-white/70">Sign in to see your chores and earn rewards</p>
+            <p className="mt-1 text-base text-white/70">Complete chores, earn points, shop for rewards</p>
           </div>
           <AuthCard>
             <form onSubmit={handleSubmit} className="space-y-5">

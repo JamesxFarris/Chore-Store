@@ -17,8 +17,8 @@ interface LogoProps {
 function StorefrontIcon({ size, variant }: { size: number; variant: Variant }) {
   const isLight = variant === "light";
 
-  // Awning: indigo on light bg, white on dark bg — the hero element
-  const awning = isLight ? "fill-white/90" : "fill-primary-600";
+  // Awning: light indigo on dark bg, full indigo on light bg — always reads as purple
+  const awning = isLight ? "fill-primary-200" : "fill-primary-600";
   // Body: subtle light fill
   const body = isLight ? "fill-white/70" : "fill-primary-50";
   const bodyStroke = isLight ? "rgba(255,255,255,0.25)" : "#c7d2fe";

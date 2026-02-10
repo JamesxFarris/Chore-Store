@@ -53,7 +53,7 @@ export function RegisterPage() {
           <div className="mb-8 flex flex-col items-center text-center">
             <Logo size="xl" variant="light" />
             <h1 className="mt-4 text-2xl font-bold text-white">Create your account</h1>
-            <p className="mt-1 text-sm text-white/70">Start managing chores and rewards for your family</p>
+            <p className="mt-1 text-sm text-white/70">Set up your family's chore store</p>
           </div>
           <AuthCard>
             <form onSubmit={handleSubmit} className="space-y-4">

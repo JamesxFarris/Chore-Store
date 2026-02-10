@@ -52,7 +52,7 @@ export function LoginPage() {
           <div className="mb-8 flex flex-col items-center text-center">
             <Logo size="xl" variant="light" />
             <h1 className="mt-4 text-2xl font-bold text-white">Welcome back</h1>
-            <p className="mt-1 text-sm text-white/70">Sign in to manage your family's chores</p>
+            <p className="mt-1 text-sm text-white/70">Sign in to manage chores and rewards</p>
           </div>
           <AuthCard>
             <form onSubmit={handleSubmit} className="space-y-4">
