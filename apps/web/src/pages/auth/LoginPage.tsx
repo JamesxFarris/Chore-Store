@@ -5,7 +5,10 @@ import { authApi } from "../../api/auth.js";
 import { useAuth } from "../../context/AuthContext.js";
 import { Button } from "../../components/ui/Button.js";
 import { Input } from "../../components/ui/Input.js";
-import { Card } from "../../components/ui/Card.js";
+import { Logo } from "../../components/brand/Logo.js";
+import { AnimatedBackground } from "../../components/auth/AnimatedBackground.js";
+import { AuthCard } from "../../components/auth/AuthCard.js";
+import { AuthFormField } from "../../components/auth/AuthFormField.js";
 import toast from "react-hot-toast";
 
 export function LoginPage() {
@@ -43,44 +46,58 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <h1 className="mb-6 text-center text-2xl font-bold">Parent Login</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={errors.email}
-            placeholder="parent@example.com"
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={errors.password}
-            placeholder="********"
-          />
-          <Button type="submit" loading={loading} className="w-full">
-            Sign in
-          </Button>
-        </form>
-        <div className="mt-4 space-y-2 text-center text-sm text-gray-600">
-          <p>
-            Don't have an account?{" "}
-            <Link to="/register" className="text-primary-600 hover:underline">
-              Register
-            </Link>
-          </p>
-          <p>
-            <Link to="/child-login" className="text-primary-600 hover:underline">
-              Child login
-            </Link>
-          </p>
+    <AnimatedBackground variant="parent">
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <div className="mb-8 flex flex-col items-center text-center">
+            <Logo size="xl" variant="light" />
+            <h1 className="mt-4 text-2xl font-bold text-white">Welcome back</h1>
+            <p className="mt-1 text-sm text-white/70">Sign in to manage your family's chores</p>
+          </div>
+          <AuthCard>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <AuthFormField index={0}>
+                <Input
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={errors.email}
+                  placeholder="parent@example.com"
+                />
+              </AuthFormField>
+              <AuthFormField index={1}>
+                <Input
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={errors.password}
+                  placeholder="Enter your password"
+                />
+              </AuthFormField>
+              <AuthFormField index={2}>
+                <Button type="submit" loading={loading} className="w-full">
+                  Sign in
+                </Button>
+              </AuthFormField>
+            </form>
+          </AuthCard>
+          <div className="mt-6 space-y-2 text-center text-sm">
+            <p className="text-white/70">
+              Don't have an account?{" "}
+              <Link to="/register" className="font-medium text-white underline underline-offset-2 hover:text-white/90">
+                Create one
+              </Link>
+            </p>
+            <p>
+              <Link to="/child-login" className="font-medium text-white underline underline-offset-2 hover:text-white/90">
+                I'm a kid
+              </Link>
+            </p>
+          </div>
         </div>
-      </Card>
-    </div>
+      </div>
+    </AnimatedBackground>
   );
 }

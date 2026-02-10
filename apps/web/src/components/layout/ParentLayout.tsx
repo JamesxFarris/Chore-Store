@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
+import { Avatar } from "../ui/Avatar.js";
+import { Logo } from "../brand/Logo.js";
 
 const navItems = [
   { to: "/parent/dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -14,19 +16,19 @@ export function ParentLayout() {
   const { parent, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="hidden w-64 border-r border-gray-200 bg-white lg:block">
-        <div className="flex h-16 items-center border-b border-gray-200 px-6">
-          <h1 className="text-lg font-bold text-primary-600">Chore Store</h1>
+      <aside className="hidden w-64 border-r border-gray-200/80 bg-white lg:flex lg:flex-col">
+        <div className="flex h-16 items-center border-b border-gray-100 px-6">
+          <Logo size="md" />
         </div>
-        <nav className="mt-4 space-y-1 px-3">
+        <nav className="mt-2 flex-1 space-y-0.5 px-3">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? "bg-primary-50 text-primary-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`
+                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${isActive ? "bg-primary-50 text-primary-700 shadow-sm" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`
               }
             >
               <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,24 +38,43 @@ export function ParentLayout() {
             </NavLink>
           ))}
         </nav>
+        <div className="border-t border-gray-100 p-4">
+          <div className="flex items-center gap-3">
+            <Avatar name={parent?.name || "P"} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-gray-900">{parent?.name}</p>
+              <button
+                onClick={logout}
+                className="text-xs text-gray-500 transition-colors hover:text-gray-700"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
       </aside>
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-8">
-          <h1 className="text-lg font-bold text-primary-600 lg:hidden">Chore Store</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{parent?.name}</span>
+        <header className="flex h-16 items-center justify-between border-b border-gray-200/80 bg-white px-4 lg:px-8">
+          <div className="lg:hidden">
+            <Logo size="md" />
+          </div>
+          <div className="hidden lg:block" />
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm text-gray-600 sm:inline">{parent?.name}</span>
             <button
               onClick={logout}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="rounded-lg px-3 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 lg:hidden"
             >
               Sign out
             </button>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 lg:p-8">
-          <Outlet />
+          <div className="animate-fade-in">
+            <Outlet />
+          </div>
         </main>
         {/* Mobile bottom nav */}
         <nav className="flex border-t border-gray-200 bg-white lg:hidden">
@@ -62,7 +83,7 @@ export function ParentLayout() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-1 py-2 text-xs ${isActive ? "text-primary-600" : "text-gray-500"}`
+                `flex flex-1 flex-col items-center gap-1 py-2.5 text-xs transition-colors ${isActive ? "text-primary-600 font-medium" : "text-gray-400"}`
               }
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

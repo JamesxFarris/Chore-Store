@@ -10,10 +10,11 @@
   },
   "dependencies": {
     "@chore-store/shared": "*",
+    "framer-motion": "^12.34.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.0",
     "react-hot-toast": "^2.4.1",
+    "react-router-dom": "^7.1.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {

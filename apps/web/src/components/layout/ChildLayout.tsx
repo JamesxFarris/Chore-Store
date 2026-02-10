@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
 import { PointsBadge } from "../points/PointsBadge.js";
+import { Avatar } from "../ui/Avatar.js";
+import { Logo } from "../brand/Logo.js";
 
 const navItems = [
   { to: "/child/chores", label: "My Chores", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" },
@@ -13,22 +15,27 @@ export function ChildLayout() {
   const { child, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4">
-        <h1 className="text-lg font-bold text-primary-600">Chore Store</h1>
-        <div className="flex items-center gap-4">
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <header className="flex h-16 items-center justify-between border-b border-gray-200/80 bg-white px-4">
+        <Logo size="md" />
+        <div className="flex items-center gap-3">
           <PointsBadge />
-          <span className="text-sm text-gray-600">{child?.name}</span>
+          <div className="flex items-center gap-2">
+            <Avatar name={child?.name || "K"} avatar={child?.avatar} size="sm" />
+            <span className="hidden text-sm font-medium text-gray-700 sm:inline">{child?.name}</span>
+          </div>
           <button
             onClick={logout}
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="rounded-lg px-2 py-1.5 text-xs text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
           >
             Sign out
           </button>
         </div>
       </header>
       <main className="flex-1 overflow-auto p-4">
-        <Outlet />
+        <div className="animate-fade-in">
+          <Outlet />
+        </div>
       </main>
       <nav className="flex border-t border-gray-200 bg-white">
         {navItems.map((item) => (
@@ -36,10 +43,10 @@ export function ChildLayout() {
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-1 py-3 text-xs ${isActive ? "text-primary-600" : "text-gray-500"}`
+              `flex flex-1 flex-col items-center gap-1 py-3 text-xs transition-colors ${isActive ? "text-primary-600 font-medium" : "text-gray-400"}`
             }
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
             </svg>
             {item.label}
