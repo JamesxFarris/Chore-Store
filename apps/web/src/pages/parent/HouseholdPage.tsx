@@ -59,61 +59,107 @@ export function HouseholdPage() {
       <div className="space-y-6">
         <PageHeader title="Household" subtitle={household.name} />
 
+        {/* Invite a Parent */}
         <Card>
-          <div className="space-y-6">
+          <div className="space-y-4 text-center">
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Invite Code</h3>
-              <div className="mt-2 flex items-center gap-3">
-                <code className="rounded-xl bg-gray-100 px-4 py-2.5 text-lg font-mono font-bold tracking-[0.2em] text-gray-900">
-                  {household.inviteCode}
-                </code>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(household.inviteCode);
-                    toast.success("Copied to clipboard!");
-                  }}
-                >
-                  Copy
-                </Button>
-              </div>
-              <p className="mt-2 text-xs text-gray-400">
-                Share this code with other parents to join, or use it for child login.
+              <span className="text-3xl">👨‍👩‍👧</span>
+              <h3 className="mt-2 text-lg font-bold text-gray-900">Invite Another Parent</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Share this code with another adult to give them full access to your household
               </p>
             </div>
 
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Members</h3>
-              <div className="mt-2 space-y-2">
-                {household.members.map((m) => (
-                  <div key={m.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
-                    <Avatar name={m.user.name || m.user.email} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900">{m.user.name}</p>
-                      <p className="text-xs text-gray-500">{m.user.email}</p>
-                    </div>
-                    <Badge color="indigo">{m.role}</Badge>
+            <div className="mx-auto inline-block rounded-2xl bg-gray-100 px-8 py-4">
+              <code className="text-2xl font-mono font-bold tracking-[0.25em] text-gray-900">
+                {household.inviteCode}
+              </code>
+            </div>
+
+            <div className="flex items-center justify-center gap-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(household.inviteCode);
+                  toast.success("Copied to clipboard!");
+                }}
+              >
+                Copy Code
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={async () => {
+                  const shareData = {
+                    title: "Join our family on Chore Store!",
+                    text: `Join our family on Chore Store! Use invite code: ${household.inviteCode}`,
+                  };
+                  if (navigator.share) {
+                    try {
+                      await navigator.share(shareData);
+                    } catch (err: any) {
+                      if (err.name !== "AbortError") {
+                        navigator.clipboard.writeText(shareData.text);
+                        toast.success("Copied to clipboard!");
+                      }
+                    }
+                  } else {
+                    navigator.clipboard.writeText(shareData.text);
+                    toast.success("Copied to clipboard!");
+                  }
+                }}
+              >
+                Share
+              </Button>
+            </div>
+
+            <p className="text-xs text-gray-400">
+              They sign up &rarr; enter this code &rarr; done!
+            </p>
+          </div>
+        </Card>
+
+        {/* Members */}
+        <Card>
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Members</h3>
+            <div className="space-y-2">
+              {household.members.map((m) => (
+                <div key={m.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
+                  <Avatar name={m.user.name || m.user.email} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900">{m.user.name}</p>
+                    <p className="text-xs text-gray-500">{m.user.email}</p>
+                  </div>
+                  <Badge color="indigo">{m.role}</Badge>
+                </div>
+              ))}
+            </div>
+            {household.members.length === 1 && (
+              <p className="text-center text-sm text-gray-400">
+                You're the only adult — invite your partner!
+              </p>
+            )}
+          </div>
+        </Card>
+
+        {/* Children */}
+        <Card>
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Children</h3>
+            {household.children.length === 0 ? (
+              <p className="text-sm text-gray-400">No children yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {household.children.map((c) => (
+                  <div key={c.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
+                    <Avatar name={c.name} avatar={c.avatar} size="sm" />
+                    <span className="text-sm font-medium text-gray-900">{c.name}</span>
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Children</h3>
-              {household.children.length === 0 ? (
-                <p className="mt-2 text-sm text-gray-400">No children yet.</p>
-              ) : (
-                <div className="mt-2 space-y-2">
-                  {household.children.map((c) => (
-                    <div key={c.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
-                      <Avatar name={c.name} avatar={c.avatar} size="sm" />
-                      <span className="text-sm font-medium text-gray-900">{c.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </Card>
       </div>
